@@ -16,13 +16,16 @@ def bsp(in_str: str, low: chr, up: chr, start: Tuple[int, int], n: int) -> int:
 
     lower = start[0]
     upper = start[1]
-    for i in range(n):
-        if in_str[i] == low:
+    for c in range(n):
+        if in_str[c] == low:
             upper = math.floor((upper + lower) / 2)
-        elif in_str[i] == up:
+        elif in_str[c] == up:
             lower = math.floor((upper + lower) / 2) + 1
+        else:
+            raise ValueError(f"bsp: Unexpected char '{in_str[c]}'. (Expected '{low}' or '{up}')")
 
-    if lower != upper: raise ArithmeticError("Bad result for bsp using given params")
+    if lower != upper:
+        raise ValueError(f"bsp: Bad result using given params ({lower} != {upper} at end of execution)")
     return lower
 
 
@@ -30,10 +33,11 @@ def bsp(in_str: str, low: chr, up: chr, start: Tuple[int, int], n: int) -> int:
 file = open("input.txt", "r")
 data = file.read().splitlines()
 
-all_IDs = []
-
 max_seatID = 0
 max_pass = ""
+
+all_IDs = []
+num_IDs = 0
 
 for seat in data:
 
@@ -51,10 +55,16 @@ for seat in data:
 
     # Add to master list
     all_IDs.append(seatID)
+    num_IDs += 1
 
-# Find our seat id
+# Find our seat id (cant be first or last)
 all_IDs.sort()
-myseatID = sum(range(all_IDs[0], all_IDs[-1] + 1)) - sum(all_IDs)
+myseatID = 0
+for i in range(1, num_IDs):
+    # If the previous ID isn't one away, we found the missing ID
+    if all_IDs[i - 1] + 1 != all_IDs[i]:
+        myseatID = all_IDs[i - 1] + 1
+        break
 
-print(f"MaxID:{max_seatID} | PASS:{max_pass}")
-print(f"My seat ID is {myseatID}")
+print(f"MaxID:{max_seatID} | PASS:{max_pass}")  # Part 1
+print(f"My seat ID is {myseatID}")              # Part 2
